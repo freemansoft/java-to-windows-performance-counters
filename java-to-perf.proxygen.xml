@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jni4net-proxygen xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://jni4net.sf.net/0.8.6.0/toolConfig.xsd">
+  <TargetDirJvm>generated\jvm</TargetDirJvm>
+  <TargetDirClr>generated\clr</TargetDirClr>
+  <AssemblyReference Assembly="WindowsPerformanceCountersForJava\src\PerformanceCounters\bin\Debug\FreemanSoft.PerformanceCounters.dll" Generate="true" />
+</jni4net-proxygen>
