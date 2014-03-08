@@ -19,7 +19,7 @@ $new = "// quick hack to get the thread cache correctly set up because the Wrap 
 			global::net.sf.jni4net.jni.JNIEnv @__ignored = global::net.sf.jni4net.jni.JNIEnv.ThreadEnv;
 			global::net.sf.jni4net.jni.JNIEnv @__env = global::net.sf.jni4net.jni.JNIEnv.Wrap"
  Get-Childitem $pathtofiles -recurse -name -Include *.cs | ForEach {
-  echo ":::: $pathtofiles\$_"
+  #echo ":::: $pathtofiles\$_"
   $fullpath = "$pathtofiles\$_"
   (Get-Content $fullpath | ForEach {$_ -replace "global::net.sf.jni4net.jni.JNIEnv \@__env = global::net.sf.jni4net.jni.JNIEnv.Wrap", "$new"}) | Set-Content $fullpath 
 }
