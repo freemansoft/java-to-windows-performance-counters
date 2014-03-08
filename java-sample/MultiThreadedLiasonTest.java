@@ -40,7 +40,7 @@ import freemansoft.performancecounters.WindowsPerformanceLiason;
  */
 public class MultiThreadedLiasonTest {
 
-	private static String CATEGORY_NAME  = "Freemansoft.TestCategory";
+	private static String CATEGORY_NAME  = "Freemansoft.JavaTestCategory";
 	//private static String COUNTER_NAME = "TestCounter"; 
 	private static String COUNTER_NAME = "TestRate";
 	private static int NUMBER_OF_THREADS = 2;

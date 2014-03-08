@@ -1,6 +1,6 @@
 #this script must be run as administrator
 #create two counters
-$categoryName = "Freemansoft.TestCategory"
+$categoryName = "Freemansoft.JavaTestCategory"
 $countCounterName = "TestCounter"
 $rateCounterName = "TestRate"
 $categoryexists = [System.Diagnostics.PerformanceCounterCategory]::Exists($categoryName)

@@ -82,29 +82,33 @@ echo "copying original dll $perfdllpath to target"
 Copy-Item $perfdllpath $packagingdir
 
 ######################################## end library construction ##########################
-
+#
+# This next section belongs in a different powershell script but I don't have enough 
+# powershell fu to avoid copy/past of properties so I'm leaving it here
+#
 ######################################## begin sample ######################################
 # compiling sample
 echo "Compiling Java CacheTest sample"
 New-item -ItemType Directory -Force -Path $targetdir/classes | Out-Null
 # java 6 and later support wildcards
-javac -cp "$packagingdir/*" -d $targetdir/classes java-sample/CacheTest.java java-sample/MultiThreadedLiasonTest.java
+javac -nowarn -cp "$packagingdir/*" -d $targetdir/classes java-sample/CacheTest.java java-sample/MultiThreadedLiasonTest.java java-sample/MultiThreadedFacadeTest.java
 echo "------------------------------- Sample cache dirty pages retriever started -------------------"
 #need $packagingdir/* for jars and $packagingdir for dll
 java -cp "$packagingdir/*;$targetdir/classes;$packagingdir" CacheTest
 echo "------------------------------- Sample cache dirty pages retriever finished-------------------"
 
-$categoryexists = [System.Diagnostics.PerformanceCounterCategory]::Exists("FreemanSoft.TestCategory")
+$categoryexists = [System.Diagnostics.PerformanceCounterCategory]::Exists("FreemanSoft.JavaTestCategory")
 if ($categoryexists)
 {
+	echo "------------------------------- Sample facade based load test started -------------------"
+	#need $packagingdir/* for jars and $packagingdir for dll
+	#echo 'java -cp "$packagingdir/*;$targetdir/classes;$packagingdir" MultiThreadedFacadeTest'
+	java -cp "$packagingdir/*;$targetdir/classes;$packagingdir" MultiThreadedFacadeTest
+	echo "------------------------------- Sample facade based load test finished-------------------"
 	echo "------------------------------- Sample liason based load test started -------------------"
 	#need $packagingdir/* for jars and $packagingdir for dll
 	java -cp "$packagingdir/*;$targetdir/classes;$packagingdir" MultiThreadedLiasonTest
 	echo "------------------------------- Sample liason based load test finished-------------------"
-	echo "------------------------------- Sample facade based load test started -------------------"
-	#need $packagingdir/* for jars and $packagingdir for dll
-	java -cp "$packagingdir/*;$targetdir/classes;$packagingdir" MultiThreadedFacadeTest
-	echo "------------------------------- Sample facade based load test finished-------------------"
 } else {
 echo "Not running performance test because performance category does not exist."
 echo "You must run the ps1 file in the java directory as administrator to create the category"

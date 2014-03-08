@@ -40,7 +40,7 @@ import freemansoft.performancecounters.WindowsPerformanceFacade;
  */
 public class MultiThreadedFacadeTest {
 
-	private static String CATEGORY_NAME  = "Freemansoft.TestCategory";
+	private static String CATEGORY_NAME  = "Freemansoft.JavaTestCategory";
 	//private static String COUNTER_NAME = "TestCounter"; 
 	private static String COUNTER_NAME = "TestRate";
 	private static int NUMBER_OF_THREADS = 2;
@@ -61,19 +61,18 @@ public class MultiThreadedFacadeTest {
 	}
 
 	public void start() throws InterruptedException {
-		WindowsPerformanceFacade underTest = new WindowsPerformanceFacade();
 		int counterId;
 		long startTime;
 		startTime = System.currentTimeMillis();
 		try {
-			underTest.CacheCounters(CATEGORY_NAME, null);
-			counterId = underTest.GetPerformanceCounterId(CATEGORY_NAME, "", COUNTER_NAME);
+			WindowsPerformanceFacade.CacheCounters(CATEGORY_NAME, null);
+			counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CATEGORY_NAME, "", COUNTER_NAME);
 		} catch (system.InvalidOperationException e) {
 			System.out
 					.println("You must first create the performance counter running the CreateTestPerformanceCounters.ps1 powershell script in this source directory AS ADMINISTRATOR.");
 			throw e;
 		}
-		System.out.println("Current counter value is " + underTest.NextValue(counterId));
+		System.out.println("Current counter value is " + WindowsPerformanceFacade.NextValue(counterId));
 		System.out.println("Caching took " + (System.currentTimeMillis() - startTime));
 		List<Thread> workerThreads = new ArrayList<Thread>();
 		//// keep these so we can interrogate them later
@@ -127,26 +126,23 @@ public class MultiThreadedFacadeTest {
 	 */
 
 	class MyRunnable implements Runnable {
-		private final WindowsPerformanceFacade underTest;
 		private final int counterId;
 		public int executionCount = 0;
 
 		MyRunnable(int counterId) {
-			this.underTest = new WindowsPerformanceFacade();
 			this.counterId = counterId;
 		}
 
 		@Override
 		public void run() {
 			System.out.println("'" + Thread.currentThread().getName()
-					+ "' ready for " + this.counterId);
+					+ "' ready for CounterId " + this.counterId);
 			long startTime = System.currentTimeMillis();
 			try {
 				this.executionCount = 0;
 				while (!Thread.currentThread().isInterrupted()) {
-					//I tried doing to just see the jni4net jni overhead and got the same performance
-					//underTest.GetPerformanceCounterId(CATEGORY_NAME, "", COUNTER_NAME);
-					this.underTest.Increment(counterId);
+					//I commenting out the facade call but got order the same performance
+					WindowsPerformanceFacade.Increment(counterId);
 					this.executionCount++;
 					// System.out.print(".");
 				}

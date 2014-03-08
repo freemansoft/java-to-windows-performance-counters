@@ -109,7 +109,7 @@ namespace FreemanSoft.PerformanceCounters.Test
             int numthreads = 4;
             int sleeptime = 10000;
             string categoryname = CounterTestUtilities.TestCategoryName;
-            //string countername = CounterTestUtilities.TestCounterNumberOfItems64Name;
+            //// string countername = CounterTestUtilities.TestCounterNumberOfItems64Name;
             string countername = CounterTestUtilities.TestCounterRateOfCountPerSecond64Name;
 
             WindowsPerformanceLiason liason = new WindowsPerformanceLiason();
@@ -150,7 +150,7 @@ namespace FreemanSoft.PerformanceCounters.Test
             //// Assert.AreEqual(expected, result);
             Assert.AreEqual(expected, result, 2);
             //// this should be about 2million per thread per second on quad core macbook pro
-            Assert.IsTrue(result > 20000, "expected 20,000 bug got " + result);
+            Assert.IsTrue(result > 20000, "expected > 20,000 but got " + result);
         }
     }
 

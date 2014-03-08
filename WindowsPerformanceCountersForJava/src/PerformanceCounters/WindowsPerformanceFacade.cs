@@ -34,7 +34,7 @@ namespace FreemanSoft.PerformanceCounters
     /// First GetCacheCounterKey() to get a counter key you can pass to the counter manipulation methods.
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "I wish it new liason.")]
-    public class WindowsPerformanceFacade
+    public static class WindowsPerformanceFacade
     {
         /// <summary>
         /// used to map from an integer key back to the Performance counter names used by WindowsPerformanceLiason
@@ -44,14 +44,14 @@ namespace FreemanSoft.PerformanceCounters
         /// <summary>
         /// our "contains-a" object
         /// </summary>
-        private WindowsPerformanceLiason liason;
+        private static WindowsPerformanceLiason liason;
 
         /// <summary>
-        /// Simple constructor that initilizes contains relationship
+        /// static constructor creates our shared contained liason which we hope is thread safe.
         /// </summary>
-        public WindowsPerformanceFacade()
+        static WindowsPerformanceFacade()
         {
-            this.liason = new WindowsPerformanceLiason();
+            liason = new WindowsPerformanceLiason();
         }
 
         /// <summary>
@@ -60,10 +60,10 @@ namespace FreemanSoft.PerformanceCounters
         /// <exception cref="ArgumentException">if previously cached can't be found </exception>
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
-        public void Increment(int counterKey)
+        public static void Increment(int counterKey)
         {
-            PerformanceCounterKey complexKey = this.GetPerformanceCounterKey(counterKey);
-            this.liason.Increment(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
+            PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
+            liason.Increment(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
         }
 
         /// <summary>
@@ -72,11 +72,11 @@ namespace FreemanSoft.PerformanceCounters
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
         /// <param name="incrementAmount">the amount we wish to increment</param>
-        public void IncrementBy(int counterKey, long incrementAmount)
+        public static void IncrementBy(int counterKey, long incrementAmount)
         {
-            PerformanceCounterKey complexKey = this.GetPerformanceCounterKey(counterKey);
+            PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
             System.Diagnostics.Debug.WriteLine("WindowsPerformanceFacade IncrementBy: '" + complexKey.CategoryName + ", " + complexKey.InstanceName + ", " + complexKey.CounterName + ", " + incrementAmount);
-            this.liason.IncrementBy(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName, incrementAmount);
+            liason.IncrementBy(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName, incrementAmount);
         }
 
         /// <summary>
@@ -88,10 +88,10 @@ namespace FreemanSoft.PerformanceCounters
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
         /// <param name="incrementAmount">increment amount</param>
         /// <param name="incrementBaseAmount">increment base counter amount</param>
-        public void IncrementBy(int counterKey, long incrementAmount, long incrementBaseAmount)
+        public static void IncrementBy(int counterKey, long incrementAmount, long incrementBaseAmount)
         {
-            PerformanceCounterKey complexKey = this.GetPerformanceCounterKey(counterKey);
-            this.liason.IncrementBy(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName, incrementAmount, incrementBaseAmount);
+            PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
+            liason.IncrementBy(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName, incrementAmount, incrementBaseAmount);
         }
 
         /// <summary>
@@ -99,10 +99,10 @@ namespace FreemanSoft.PerformanceCounters
         /// <exception cref="ArgumentException">if previously cached can't be found </exception>
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
-        public void Decrement(int counterKey)
+        public static void Decrement(int counterKey)
         {
-            PerformanceCounterKey complexKey = this.GetPerformanceCounterKey(counterKey);
-            this.liason.Decrement(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
+            PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
+            liason.Decrement(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
         }
 
         /// <summary>
@@ -111,10 +111,10 @@ namespace FreemanSoft.PerformanceCounters
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
         /// <returns>The current value from the NextValue method on the counter.</returns>
-        public float NextValue(int counterKey)
+        public static float NextValue(int counterKey)
         {
-            PerformanceCounterKey complexKey = this.GetPerformanceCounterKey(counterKey);
-            return this.liason.NextValue(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
+            PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
+            return liason.NextValue(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
         }
 
         /// <summary>
@@ -128,9 +128,9 @@ namespace FreemanSoft.PerformanceCounters
         /// </summary>
         /// <param name="categoryName">name of the category</param>
         /// <param name="instanceName">optional instance name in category</param>
-        public void CacheCounters(string categoryName, string instanceName = null)
+        public static void CacheCounters(string categoryName, string instanceName = null)
         {
-            this.liason.CacheCounters(categoryName, instanceName);
+            liason.CacheCounters(categoryName, instanceName);
         }
 
         /// <summary>
@@ -141,7 +141,7 @@ namespace FreemanSoft.PerformanceCounters
         /// <param name="instanceName">Performance category instance name (optional)</param>
         /// <param name="counterName">Performance counter name</param>
         /// <returns>numer identifier that can be used as an id/key later</returns>
-        public int GetPerformanceCounterId(string categoryName, string instanceName, string counterName)
+        public static int GetPerformanceCounterId(string categoryName, string instanceName, string counterName)
         {
             PerformanceCounterKey key = new PerformanceCounterKey(categoryName, instanceName, counterName);
             if (!keyToNames.ContainsKey(key.KeyCode))
@@ -157,7 +157,7 @@ namespace FreemanSoft.PerformanceCounters
         /// </summary>
         /// <param name="counterKey">a previously retrieved performance counter id</param>
         /// <returns>The compound PerformanceCounterKey object that contains the category, instance and counter names</returns>
-        internal PerformanceCounterKey GetPerformanceCounterKey(int counterKey)
+        internal static PerformanceCounterKey GetPerformanceCounterKey(int counterKey)
         {
             if (!keyToNames.ContainsKey(counterKey))
             {
