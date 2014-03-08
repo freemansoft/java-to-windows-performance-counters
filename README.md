@@ -9,22 +9,22 @@ This library lets you update Microsoft Windows Performance Counters from Java ba
 	
 The GitHub repository contains the following pieces
 
-1. The source for C# library that wraps the performance counters in an "easy to JNI" format. 
+1. Source for C# library that wraps the performance counters in an "easy to JNI" format. 
 2. jni4net JNI generation library available on sourceforge
-3. Generated C# dll and Java jar files for the JNI interface
-4. The pre-built binaries in the packages directory that let you run use this library without having to build the originating dll or the JNI components
-5. The source for sample java project that shows how to use the library and allows you to run performance tests.  There is a powershell script in this directory that must be run as administrator to create the Test/Demo performance counters.
-6. A powershell script that builds the JNI components and runs the demos.  This assumes that you have already built the base C# library with visual studio.
-7. A powershell script that creates the performance counters used by the java test program
+3. The pre-built binaries in the packages directory that let you run use this library without having to build the originating dll or the JNI components
+4. The source for sample java project that shows how to use the library and allows you to run performance tests.  There is a powershell script in this directory that must be run as administrator to create the Test/Demo performance counters.
+5. A powershell script that builds the JNI components and runs the demos.  This assumes that you have already built the base C# library with visual studio.
+6. A powershell script that creates the performance counters used by the java test program
 
 # API
 
-There are two different API classes that provide the exact same functionality. One is a string based API that directly maps to the C# library. The other is a key based API that reduces the need to continually pass keys back and forth.
+There are two different API classes that provide the exact same level of functionality. One is a string based API that directly maps to the C# library. The other is a key based API that reduces the need to continually pass keys back and forth.
 
 *	MultiThreadedLiason: String based API where the category/(instance)/counter strings are passed in on every call.
 *	MultiThreadedFacade: Completely static interface. This increases performance 5%.  Numeric key based API where the caller registers a category/(instance)/counter string combo to get a key that is used in subsequent calls.
 
 # Using the Provided Binaries
+The github repository holds the latest binaries in the packages directory. You can use them without having to compile C# code or build any proxies.
 Steps to use binaries
 
 
