@@ -27,16 +27,17 @@ import freemansoft.performancecounters.WindowsPerformanceFacade;
  * @author Joe Freeman This program reads the dirty cache Performance Counter in
  *         the cache category 20 times delaying between reads.
  *         <p>
- *         Here are the number of calls that can be made to a rate monitor on a quad core bootcamp macbook
+ *         Here are the number of calls that can be made to a rate/second monitor on a quad core bootcamp macbook
  *         <pre>
- *         14,000/sec 1 threads
- *         26,000/sec 2 threads
- *         40,000/sec 3 threads 46% cpu
- *         46,000/sec 4 threads 55% cpu -- sometimes 4 up to 48,000
- *         47,500/sec 6 threads 85% cpu
+ *         default jni4net               hacked jni4net
+ *         14,000/sec 1 threads          2.0 million
+ *         26,000/sec 2 threads			 3.5 million
+ *         40,000/sec 3 threads 46% cpu  5.3 million 30%
+ *         46,000/sec 4 threads 55% cpu  6.5 million 50%
+ *         47,500/sec 6 threads 85% cpu  6.3 million 75%
  *         48,000/sec 8 threads 99% cpu 
  *         </pre>
- *         The C code is about 200 times faster
+ *         The C code is about 5 times faster
  */
 public class MultiThreadedFacadeTest {
 

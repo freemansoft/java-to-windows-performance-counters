@@ -54,7 +54,11 @@ echo "Temporarily modified path"
 
 echo "Generating JNI code using proxygen"
 #its on the path now.
+# comment this out once you've built if you want to hand hack generated files while testing
 proxygen.exe java-to-perf.proxygen.xml
+
+# hack on the generated file to fix a "bug" in jni4net where the thread-to-thread binding is not retained across calls
+.\3hackgeneratedcs.ps1
 
 #compile classes
 New-item -ItemType Directory -Force -Path $javactargerdir | Out-Null
