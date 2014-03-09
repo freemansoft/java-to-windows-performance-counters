@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="../packages/FreemanSoft.PerformanceCounters.j4n.jar"/>
+	<classpathentry kind="lib" path="../packages/jni4net.j-0.8.6.0.jar"/>
+	<classpathentry kind="lib" path="../packages"/>
+	<classpathentry kind="output" path="target"/>
+</classpath>
