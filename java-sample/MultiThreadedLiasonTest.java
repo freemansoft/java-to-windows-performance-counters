@@ -24,10 +24,14 @@ import net.sf.jni4net.Bridge;
 import freemansoft.performancecounters.WindowsPerformanceLiason;
 
 /**
- * @author Joe Freeman This program reads the dirty cache Performance Counter in
- *         the cache category 20 times delaying between reads.
+ * @author Joe Freeman This program posts as many "rate per second" counter
+ *         updates as possible. It assumes the counters have already been
+ *         created by running the powershell script in this directory as
+ *         Administrator
  *         <p>
- *         Here are the number of calls that can be made to a rate monitor on a quad core bootcamp macbook
+ *         Here are the number of calls that can be made to a rate monitor on a
+ *         quad core bootcamp macbook
+ * 
  *         <pre>
  *         default jni4net              hacked jni4net
  *         14,000/sec 1 threads			270,000
@@ -35,128 +39,121 @@ import freemansoft.performancecounters.WindowsPerformanceLiason;
  *         40,000/sec 3 threads 46% cpu 700,000
  *         46,000/sec 4 threads 55% cpu 960,000 
  *         47,500/sec 6 threads 85% cpu 900,000
- *         48,000/sec 8 threads 99% cpu 
- *         </pre>
+ *         48,000/sec 8 threads 99% cpu
+ * </pre>
+ * 
  *         The C code is about 200 times faster
  */
 public class MultiThreadedLiasonTest {
 
-	private static String CATEGORY_NAME  = "Freemansoft.JavaTestCategory";
-	//private static String COUNTER_NAME = "TestCounter"; 
-	private static String COUNTER_NAME = "TestRate";
-	private static int NUMBER_OF_THREADS = 2;
-	private static int TEST_RUN_TIME_IN_MSEC = 10000;
-	
-	public static void main(String[] args) throws IOException,
-			InterruptedException, URISyntaxException {
-		// create bridge, with default setup
-		// it will lookup jni4net.n.dll next to jni4net.j.jar
-		Bridge.setVerbose(true);
-		Bridge.init();
-		URL urlPerfWrap = Bridge.class.getClassLoader().getResource(
-				"FreemanSoft.PerformanceCountersJNI.j4n.dll");
-		Bridge.LoadAndRegisterAssemblyFrom(new java.io.File(urlPerfWrap.toURI()));
+    private static String CATEGORY_NAME = "Freemansoft.JavaTestCategory";
+    // private static String COUNTER_NAME = "TestCounter";
+    private static String COUNTER_NAME = "TestRate";
+    private static int NUMBER_OF_THREADS = 2;
+    private static int TEST_RUN_TIME_IN_MSEC = 10000;
 
-		MultiThreadedLiasonTest testInstance = new MultiThreadedLiasonTest();
-		testInstance.start();
-	}
+    public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
+        // create bridge, with default setup
+        // it will lookup jni4net.n.dll next to jni4net.j.jar
+        Bridge.setVerbose(true);
+        Bridge.init();
+        URL urlPerfWrap = Bridge.class.getClassLoader().getResource("FreemanSoft.PerformanceCountersJNI.j4n.dll");
+        Bridge.LoadAndRegisterAssemblyFrom(new java.io.File(urlPerfWrap.toURI()));
 
-	public void start() throws InterruptedException {
-		WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
-		long startTime;
-		startTime = System.currentTimeMillis();
-		try {
-			underTest.CacheCounters(CATEGORY_NAME, null);
-		} catch (system.InvalidOperationException e) {
-			System.out
-					.println("You must first create the performance counter running the CreateTestPerformanceCounters.ps1 powershell script in this source directory AS ADMINISTRATOR.");
-			throw e;
-		}
-		System.out.println("Current counter value is " + underTest.NextValue(CATEGORY_NAME, COUNTER_NAME));
-		System.out.println("Caching took " + (System.currentTimeMillis() - startTime));
-		List<Thread> workerThreads = new ArrayList<Thread>();
-		//// keep these so we can interrogate them later
-		List<MyRunnable> runners = new ArrayList<MyRunnable>();
-		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-			// // these category and counter names must match the names in
-			// CreateTestPerformanceCounters.ps1
-			MyRunnable executor = new MyRunnable(CATEGORY_NAME, COUNTER_NAME);
-			Thread worker = new Thread(executor);
-			worker.setName("MyRunnable " + i);
-			runners.add(executor);
-			workerThreads.add(worker);
-		}
-		// System.out.println(runners.size()+" runners and "+workerThreads.size()+" threads.");
-		long startThreadInitiate = +System.currentTimeMillis();
-		for (Thread worker : workerThreads) {
-			worker.start();
-		}
-		long startThreadFinish = System.currentTimeMillis();
-		long sleepTimeInitiate = startThreadFinish;
-		Thread.sleep(TEST_RUN_TIME_IN_MSEC);
-		long sleepTimeFinish = System.currentTimeMillis();
-		long signalThreadInitiate = sleepTimeFinish;
-		for (Thread worker : workerThreads) {
-			worker.interrupt();
-		}
-		long signalThreadFinish = System.currentTimeMillis();
-		long threadStopInitiate = signalThreadFinish;
-		for (Thread worker : workerThreads) {
-			worker.join();
-		}
-		long threadStopFinish = System.currentTimeMillis();
-		System.out.println("Started in "
-				+ (startThreadFinish - startThreadInitiate));
-		System.out.println("Stopping after "
-				+ (sleepTimeFinish - sleepTimeInitiate));
-		System.out.println("All threads signaled in "
-				+ (signalThreadFinish - signalThreadInitiate));
-		System.out.println("All threads stopped in "
-				+ (threadStopFinish - threadStopInitiate));
-		int totalCount = 0;
-		for (MyRunnable runner : runners) {
-			totalCount += runner.executionCount;
-		}
-		System.out.println(runners.size() + " threads incremented "
-				+ totalCount + " times.");
-	}
+        MultiThreadedLiasonTest testInstance = new MultiThreadedLiasonTest();
+        testInstance.start();
+    }
 
-	/**
-	 * A task executor that stuffs as many increments as possible
-	 */
+    public void start() throws InterruptedException {
+        WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
+        long startTime;
+        startTime = System.currentTimeMillis();
+        try {
+            underTest.CacheCounters(CATEGORY_NAME, null);
+        } catch (system.InvalidOperationException e) {
+            System.out
+                    .println("You must first create the performance counter running the CreateTestPerformanceCounters.ps1 powershell script in this source directory AS ADMINISTRATOR.");
+            throw e;
+        }
+        System.out.println("Current counter value is " + underTest.NextValue(CATEGORY_NAME, COUNTER_NAME));
+        System.out.println("Caching took " + (System.currentTimeMillis() - startTime));
+        List<Thread> workerThreads = new ArrayList<Thread>();
+        // // keep these so we can interrogate them later
+        List<MyRunnable> runners = new ArrayList<MyRunnable>();
+        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+            // // these category and counter names must match the names in
+            // CreateTestPerformanceCounters.ps1
+            MyRunnable executor = new MyRunnable(CATEGORY_NAME, COUNTER_NAME);
+            Thread worker = new Thread(executor);
+            worker.setName("MyRunnable " + i);
+            runners.add(executor);
+            workerThreads.add(worker);
+        }
+        // System.out.println(runners.size()+" runners and "+workerThreads.size()+" threads.");
+        long startThreadInitiate = +System.currentTimeMillis();
+        for (Thread worker : workerThreads) {
+            worker.start();
+        }
+        long startThreadFinish = System.currentTimeMillis();
+        long sleepTimeInitiate = startThreadFinish;
+        Thread.sleep(TEST_RUN_TIME_IN_MSEC);
+        long sleepTimeFinish = System.currentTimeMillis();
+        long signalThreadInitiate = sleepTimeFinish;
+        for (Thread worker : workerThreads) {
+            worker.interrupt();
+        }
+        long signalThreadFinish = System.currentTimeMillis();
+        long threadStopInitiate = signalThreadFinish;
+        for (Thread worker : workerThreads) {
+            worker.join();
+        }
+        long threadStopFinish = System.currentTimeMillis();
+        System.out.println("Started in " + (startThreadFinish - startThreadInitiate));
+        System.out.println("Stopping after " + (sleepTimeFinish - sleepTimeInitiate));
+        System.out.println("All threads signaled in " + (signalThreadFinish - signalThreadInitiate));
+        System.out.println("All threads stopped in " + (threadStopFinish - threadStopInitiate));
+        int totalCount = 0;
+        for (MyRunnable runner : runners) {
+            totalCount += runner.executionCount;
+        }
+        System.out.println(runners.size() + " threads incremented " + totalCount + " times.");
+    }
 
-	class MyRunnable implements Runnable {
-		private final WindowsPerformanceLiason underTest;
-		private final String categoryName;
-		private final String counterName;
-		public int executionCount = 0;
+    /**
+     * A task executor that stuffs as many increments as possible
+     */
 
-		MyRunnable(String categoryName,	String counterName) {
-			this.underTest = new WindowsPerformanceLiason();
-			this.categoryName = categoryName;
-			this.counterName = counterName;
-		}
+    class MyRunnable implements Runnable {
+        private final WindowsPerformanceLiason underTest;
+        private final String categoryName;
+        private final String counterName;
+        public int executionCount = 0;
 
-		@Override
-		public void run() {
-			System.out.println("'" + Thread.currentThread().getName()
-					+ "' ready for " + this.categoryName + ":"
-					+ this.counterName);
-			long startTime = System.currentTimeMillis();
-			try {
-				this.executionCount = 0;
-				while (!Thread.currentThread().isInterrupted()) {
-					this.underTest.Increment(categoryName, counterName);
-					this.executionCount++;
-					// System.out.print(".");
-				}
-			} catch (system.InvalidOperationException e) {
-				System.out
-						.println("You must first create the performance counter running the CreateTestPerformanceCounters.ps1 powershell script in this source directory AS ADMINISTRATOR.");
-				// throw e;
-			}
-			System.out.println("'" + Thread.currentThread().getName()
-					+ "' ran for " + (System.currentTimeMillis() - startTime));
-		}
-	}
+        MyRunnable(String categoryName, String counterName) {
+            this.underTest = new WindowsPerformanceLiason();
+            this.categoryName = categoryName;
+            this.counterName = counterName;
+        }
+
+        @Override
+        public void run() {
+            System.out.println("'" + Thread.currentThread().getName() + "' ready for " + this.categoryName + ":"
+                    + this.counterName);
+            long startTime = System.currentTimeMillis();
+            try {
+                this.executionCount = 0;
+                while (!Thread.currentThread().isInterrupted()) {
+                    this.underTest.Increment(categoryName, counterName);
+                    this.executionCount++;
+                    // System.out.print(".");
+                }
+            } catch (system.InvalidOperationException e) {
+                System.out
+                        .println("You must first create the performance counter running the CreateTestPerformanceCounters.ps1 powershell script in this source directory AS ADMINISTRATOR.");
+                // throw e;
+            }
+            System.out.println("'" + Thread.currentThread().getName() + "' ran for "
+                    + (System.currentTimeMillis() - startTime));
+        }
+    }
 }

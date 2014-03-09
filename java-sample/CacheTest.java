@@ -12,7 +12,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-*/
+ */
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -23,25 +23,26 @@ import system.Console;
 import freemansoft.performancecounters.WindowsPerformanceLiason;
 
 /**
- * @author Joe Freeman
- * This program reads the dirty cache Performance Counter in the cache category 
- * 20 times delaying between reads.
+ * @author Joe Freeman This program reads the dirty cache Performance Counter in
+ *         the cache category 20 times delaying between reads. It assumes the
+ *         counters have already been created by running the powershell script
+ *         in this directory as Administrator
  */
 public class CacheTest {
-	public static void main(String[] args) throws IOException,InterruptedException,URISyntaxException {
-		// create bridge, with default setup
-		// it will lookup jni4net.n.dll next to jni4net.j.jar 
-		Bridge.setVerbose(true);
-		Bridge.init();
-		URL urlPerfWrap = Bridge.class.getClassLoader().getResource("FreemanSoft.PerformanceCountersJNI.j4n.dll");
-		Bridge.LoadAndRegisterAssemblyFrom(new java.io.File(urlPerfWrap.toURI()));
+    public static void main(String[] args) throws IOException, InterruptedException, URISyntaxException {
+        // create bridge, with default setup
+        // it will lookup jni4net.n.dll next to jni4net.j.jar
+        Bridge.setVerbose(true);
+        Bridge.init();
+        URL urlPerfWrap = Bridge.class.getClassLoader().getResource("FreemanSoft.PerformanceCountersJNI.j4n.dll");
+        Bridge.LoadAndRegisterAssemblyFrom(new java.io.File(urlPerfWrap.toURI()));
 
-		WindowsPerformanceLiason liason = new WindowsPerformanceLiason();
-		for ( int i = 0; i < 20; i++){
-			liason.CacheCounters("cache",null);
-			Console.WriteLine("found value for counter dirty cache "+liason.NextValue("cache","Dirty Pages"));
-			Thread.sleep(100);
-		}
-		
-	}
+        WindowsPerformanceLiason liason = new WindowsPerformanceLiason();
+        for (int i = 0; i < 20; i++) {
+            liason.CacheCounters("cache", null);
+            Console.WriteLine("found value for counter dirty cache " + liason.NextValue("cache", "Dirty Pages"));
+            Thread.sleep(100);
+        }
+
+    }
 }

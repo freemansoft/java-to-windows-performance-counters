@@ -30,6 +30,17 @@ namespace FreemanSoft.PerformanceCounters.Test
 
     /// <summary>
     /// This test class shows we can do 10,000,000 increment() calls per second with 4 threads on a bootcamp macbook pro.
+    /// <code>
+    ///  3,600,000 / sec with 1 threads
+    ///  6,400,000 / sec with 2 threads
+    ///  9,300,000 / sec with 3 threads
+    /// 10,700,000 / sec with 4 threads
+    /// 10,900,000 / sec with 5 threads
+    /// 11,300,000 / sec with 6 threads
+    /// 12,300,000 / sec with 7 threads
+    /// 12,500,000 / sec with 8 threads
+    /// 
+    /// </code>
     /// </summary>
     [SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1650:ElementDocumentationMustBeSpelledCorrectly", Justification = "Limited dictionary.")]
     [TestClass]
@@ -106,7 +117,8 @@ namespace FreemanSoft.PerformanceCounters.Test
         [TestMethod]
         public void WindowsPerformanceLiasonThreadTest_VerifyThreadSafe()
         {
-            int numthreads = 4;
+            //// assume 4 cores
+            int numthreads = 2;
             int sleeptime = 10000;
             string categoryname = CounterTestUtilities.TestCategoryName;
             //// string countername = CounterTestUtilities.TestCounterNumberOfItems64Name;
@@ -117,7 +129,6 @@ namespace FreemanSoft.PerformanceCounters.Test
             liason.CacheCounters(categoryname);
 
             bool[] stopflag = { false };
-            //// assume 4 cores
             Thread[] threads = new Thread[numthreads];
             ThreadExecutor[] allexecutorsForValidation = new ThreadExecutor[numthreads];
             for (int i = 0; i < numthreads; i++)
@@ -145,7 +156,7 @@ namespace FreemanSoft.PerformanceCounters.Test
             {
                 expected += oneExec.ExecutionCount;
             }
-            Debug.WriteLine("Generated {0} counter updates with {1} threads in {2} seconds.", result, numthreads, sleeptime);
+            Debug.WriteLine("Threads reported {0}, Counter reported {1} updates with {2} threads in {3} seconds.", expected, result, numthreads, sleeptime);
             //// these should be exact but I've had a couple failures, not sure how that can be
             //// Assert.AreEqual(expected, result);
             Assert.AreEqual(expected, result, 2);
