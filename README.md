@@ -9,11 +9,13 @@ This library lets you update Microsoft Windows Performance Counters from Java ba
 	
 The GitHub repository contains the following pieces
 
-1. Source for C# library that wraps the performance counters in an "easy to JNI" format. 
-2. jni4net JNI generation library available on sourceforge
-3. The pre-built binaries in the packages directory that let you run use this library without having to build the originating dll or the JNI components
+1. Source for C# library that wrap the performance counters in an "easy to JNI" format. 
+2. jni4net JNI generation library available on sourceforge used to create java proxies
+3. The pre-built binaries in the packages directory that let you run use this library without having to build the originating dll or the JNI components.  This includes a javadoc jar for the proxies
 4. The source for sample java project that shows how to use the library and allows you to run performance tests.  There is a powershell script in this directory that must be run as administrator to create the Test/Demo performance counters.
 5. A powershell script that builds the JNI components and runs the demos.  This assumes that you have already built the base C# library with visual studio.
+	1. A powershell script that patches generated C# fils
+	2. A powershell script that adds javadoc to the generated Java files
 6. A powershell script that creates the performance counters used by the java test program
 
 # API
@@ -21,7 +23,7 @@ The GitHub repository contains the following pieces
 There are two different API classes that provide the exact same level of functionality. One is a string based API that directly maps to the C# library. The other is a key based API that reduces the need to continually pass keys back and forth.
 
 *	MultiThreadedLiason: String based API where the category/(instance)/counter strings are passed in on every call.
-*	MultiThreadedFacade: Completely static interface. This increases performance 5%.  Numeric key based API where the caller registers a category/(instance)/counter string combo to get a key that is used in subsequent calls.
+*	MultiThreadedFacade: Completely static interface. This provides 7X thre throughput of MultiThreadedLiason.  Numeric key based API where the caller registers a category/(instance)/counter string combo to get a key that is used in subsequent calls.
 
 # Using the Provided Binaries
 The github repository holds the latest binaries in the packages directory. You can use them without having to compile C# code or build any proxies.
@@ -48,7 +50,7 @@ Steps to build the binaries from scratch
 			* CD to the java-sample directory
 			* Run 1CreateTestPerformanceCounters.ps1 to create the performance counters. The java code doesn't have permission to create performance counters.
 	* Generate the JNI code, build java and run the samples.
-		*Open a new powershell to build the java code and run the tests. You may be able to re-use the admin powershell. I've never done that.
+		*Open a new powershell to generate the JNI code, build the java sample code code and run the tests. You may be able to re-use the admin powershell. I've never done that.
 			* Verify the 1build.ps1 paths work for you. They WILL NOT be right.  The script assumes you are sitting in the root of this repository.  It does have hard coded paths to csc.exe
 			* cd into the top level directory
 			* Run the 1build.ps1 powershell script to build and run java code

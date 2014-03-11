@@ -33,7 +33,7 @@ if ( Test-Path Env:\java_home )
 # if this fails with a System.IO.FileLoadException then maybe the jni dlls are blocked by windows security
 # you can unblock them using the properties inspector in windows explorer 
 # you may have to also unblock proxygen.exe itself
-$originalpath = $env:path
+#$originalpath = $env:path
 
 # this should be the current working directory
 $projectroot = "$PSScriptRoot\"
@@ -41,9 +41,11 @@ $perfdllpath = "WindowsPerformanceCountersForJava\src\PerformanceCounters\bin\De
 $jni4netroot= "jni4net-0.8.6.0-bin\"
 $jni4netbinpath = $projectroot+$jni4netroot+"bin\"
 $jni4netlibpath = $projectroot+$jni4netroot+"lib\"
-$javactargerdir = "generated\classes"
-$packagingdir = "packages"
 $targetdir = "generated\target"
+$javactargerdir = "generated\classes"
+$javadoctargerdir = "generated\docs"
+$javagensourcedir = "generated\jvm"
+$packagingdir = "packages"
 # use .Net 3.5 or later
 $cscpath="C:\Windows\Microsoft.NET\Framework64\v4.0.30319"
 # JDK 1.5 or later -- should use JAVA_HOME\bin if it exists or verify if already on path
@@ -67,22 +69,30 @@ echo "Temporarily modified path"
 #echo $env:path
 
 echo "Generating JNI code using proxygen"
-#its on the path now.
+# its on the path now.
 # comment this out once you've built if you want to hand hack generated files while testing
 proxygen.exe java-to-perf.proxygen.xml
 
 # hack on the generated file to fix a "bug" in jni4net where the thread-to-thread binding is not retained across calls
 .\3hackgeneratedcs.ps1
 
+# hack on the generated java to patch in javadoc
+.\4hackgeneratedjava.ps1
+
 #compile classes
 New-item -ItemType Directory -Force -Path $javactargerdir | Out-Null
 echo "Compiling generated java code"
-javac -nowarn -d $javactargerdir -sourcepath generated/jvm -cp $jni4netlibpath/jni4net.j-0.8.6.0.jar generated/jvm/freemansoft/performancecounters/WindowsPerformanceLiason.java generated/jvm/freemansoft/performancecounters/WindowsPerformanceFacade.java
+javac -g -nowarn -d $javactargerdir -sourcepath $javagensourcedir -cp $jni4netlibpath/jni4net.j-0.8.6.0.jar generated/jvm/freemansoft/performancecounters/WindowsPerformanceLiason.java generated/jvm/freemansoft/performancecounters/WindowsPerformanceFacade.java
 
 #jar them up
 New-item -ItemType Directory -Force -Path $packagingdir | Out-Null
 echo "Creating generated jar file"
-jar cvf $packagingdir/FreemanSoft.PerformanceCounters.j4n.jar  -C generated\classes freemansoft
+jar cf $packagingdir/FreemanSoft.PerformanceCounters.j4n.jar  -C generated\classes freemansoft
+
+# create the javadoc
+New-item -ItemType Directory -Force -Path $javadoctargerdir | Out-Null
+javadoc -d $javadoctargerdir -sourcepath $javagensourcedir  -classpath $jni4netlibpath/jni4net.j-0.8.6.0.jar freemansoft.performancecounters
+jar cf $packagingdir/FreemansSoft.PerformanceCounters.j4n-javadoc.jar -C $javadoctargerdir .
 
 #compile the jni code into a dll
 $cscreference_jni4net = "/reference:$jni4netlibpath\jni4net.n-0.8.6.0.dll"
