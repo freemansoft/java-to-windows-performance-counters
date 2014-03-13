@@ -9,6 +9,7 @@ This library lets you update Microsoft Windows Performance Counters from Java ba
 ## Additional links
 * [A quick overview of Windows Performance Counters](http://joe.blog.freemansoft.com/2014/03/windows-performance-counters.html)
 * [Recording Java metrics with Windows Performance Counters](http://joe.blog.freemansoft.com/2014/03/recording-java-metrics-with-windows.html)
+* [A quick overview of the Java wrapper API](http://joe.blog.freemansoft.com/2014/03/java-api-wrapper-for-windows.html)
 	
 The GitHub repository contains the following pieces
 
