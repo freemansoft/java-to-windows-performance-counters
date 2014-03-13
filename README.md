@@ -6,6 +6,9 @@ This library lets you update Microsoft Windows Performance Counters from Java ba
 * The Java library (wrapper) is capable of 46,000 performance counter updates per second with 4 threads with the stock JNI wrapper
 * The Java library (modified wrapper) is capable of 5,000,000 updates per second. 
 
+## Additional links
+* [A quick overview of Windows Performance Counters](http://joe.blog.freemansoft.com/2014/03/windows-performance-counters.html)
+* [Recording Java metrics with Windows Performance Counters](http://joe.blog.freemansoft.com/2014/03/recording-java-metrics-with-windows.html)
 	
 The GitHub repository contains the following pieces
 
