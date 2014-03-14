@@ -235,5 +235,24 @@ namespace FreemanSoft.PerformanceCounters
         {
             return this.wrappedCounter.NextValue();
         }
+
+        /// <summary>
+        /// Returns the raw value property of the counter
+        /// </summary>
+        /// <returns>the raw value property</returns>
+        internal long GetRawValue()
+        {
+            return this.wrappedCounter.RawValue;
+        }
+
+        /// <summary>
+        /// Sets the raw value property of the counter
+        /// <exception cref="System.InvalidOperationException">if this counter is ReadOnly</exception>
+        /// </summary>
+        /// <param name="value">the new raw value</param>
+        internal void SetRawValue(long value)
+        {
+            this.wrappedCounter.RawValue = value;
+        }
     }
 }

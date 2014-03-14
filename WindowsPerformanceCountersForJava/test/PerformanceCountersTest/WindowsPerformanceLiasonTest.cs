@@ -286,5 +286,43 @@ namespace FreemanSoft.PerformanceCounters.Test
             Assert.AreEqual(numerator / denominator, finalValue, .002, "Freq: " + freq);
             //// the final value is actually 0 here and our calculatd value is very small, almost -0
         }
+
+        /// <summary>
+        /// Verify we can write to all known test counters
+        /// Test with basic counters because then we don't have rate window problems.
+        /// </summary>
+        [TestMethod]
+        public void WindowsPerformanceLiasonTest_VerifySetGetNextValue()
+        {
+            WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
+            underTest.SetRawValue(CounterTestUtilities.TestCategoryName, CounterTestUtilities.TestCounterNumberOfItems64Name, 0);
+            float initialValue =
+            underTest.GetRawValue(CounterTestUtilities.TestCategoryName, CounterTestUtilities.TestCounterNumberOfItems64Name);
+            Assert.AreEqual(0.0, initialValue, 0.001); // shouldn't need delta...
+            underTest.SetRawValue(CounterTestUtilities.TestCategoryName, CounterTestUtilities.TestCounterNumberOfItems64Name, 10);
+            float finalValue =
+            underTest.GetRawValue(CounterTestUtilities.TestCategoryName, CounterTestUtilities.TestCounterNumberOfItems64Name);
+            Assert.AreEqual(10.0, finalValue, 0.001);  // shouldn't need delta
+        }
+
+        ////////////////////////////////////////////////////////////////////////
+        ////
+        ////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Test our stopwatch method.  Not much happening here
+        /// </summary>
+        [TestMethod]
+        public void WindowsPerformanceLiasonTest_GetTicks()
+        {
+            WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
+            long firstTick = underTest.StopwatchTimestamp();
+            Thread.Sleep(100);
+            long secondTick = underTest.StopwatchTimestamp();
+            long elapsedTicks = secondTick - firstTick;
+            //// Dividing by Frequency gives you seconds but we want milliseconds 
+            //// Assume we're not off by more than 10 msec on a 100msec wait
+            Assert.AreEqual(100, (1000 * elapsedTicks) / Stopwatch.Frequency, 10);
+        }
     }
 }

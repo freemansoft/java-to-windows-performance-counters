@@ -196,6 +196,31 @@ namespace FreemanSoft.PerformanceCounters
         }
 
         /// <summary>
+        /// returns the raw value property for this counter
+        /// </summary>
+        /// <param name="counterName">the counter name</param>
+        /// <returns>Returns the raw value for the current sample</returns>
+        internal long GetRawValue(string counterName)
+        {
+            this.ValidateCounterNameExists(counterName);
+            WrappedPerformanceCounter ourCounter = this.counters[counterName];
+            return ourCounter.GetRawValue();
+        }
+
+        /// <summary>
+        /// sets the raw value name for this counter
+        /// <exception cref="System.InvalidOperationException">if this counter is ReadOnly</exception>
+        /// </summary>
+        /// <param name="counterName">the counter name</param>
+        /// <param name="value">the new raw value</param>
+        internal void SetRawValue(string counterName, long value)
+        {
+            this.ValidateCounterNameExists(counterName);
+            WrappedPerformanceCounter ourCounter = this.counters[counterName];
+            ourCounter.SetRawValue(value);
+        }
+
+        /// <summary>
         /// Internal utility method to remove duplicated code and reduce method complexity.
         /// <exception cref="ArgumentException">if a counter name is not provided or the counter does not exist</exception>
         /// </summary>

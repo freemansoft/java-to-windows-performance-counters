@@ -188,7 +188,7 @@ namespace FreemanSoft.PerformanceCounters.Test
         }
 
         /// <summary>
-        /// Test empty argument
+        /// Just verifying we blow up with an empty counter name
         /// </summary>
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
@@ -202,14 +202,44 @@ namespace FreemanSoft.PerformanceCounters.Test
         /// Test empty argument
         /// </summary>
         [TestMethod]
-        public void WindowsPerformanceLiasonBoundsTest_GetTicks()
+        [ExpectedException(typeof(ArgumentException))]
+        public void WindowsPerformanceLiasonBoundsTest_VerifySetRawValueEmptyCategoryCheck()
         {
             WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
-            long firstTick = underTest.GetTicks();
-            Thread.Sleep(1000);
-            long secondTick = underTest.GetTicks();
-            //// high res timer is finer than milliseconds so this should work
-            Assert.IsTrue(secondTick >= firstTick + 1000);
+            underTest.SetRawValue(string.Empty, CounterTestUtilities.TestCounterNumberOfItems64Name, 0);
+        }
+
+        /// <summary>
+        /// Just verifying we blow up with an empty counter name
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void WindowsPerformanceLiasonBoundsTest_VerifySetRawValueEmptyCounterCheck()
+        {
+            WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
+            underTest.SetRawValue(CounterTestUtilities.TestCategoryName, string.Empty, 0);
+        }
+
+        /// <summary>
+        /// Test empty argument
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void WindowsPerformanceLiasonBoundsTest_VerifyGetRawValueEmptyCategoryCheck()
+        {
+            WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
+            underTest.GetRawValue(string.Empty, CounterTestUtilities.TestCounterNumberOfItems64Name);
+        }
+
+        /// <summary>
+        /// Just verifying we blow up with an empty counter name
+        /// </summary>
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void WindowsPerformanceLiasonBoundsTest_VerifyGetRawValueEmptyCounterCheck()
+        {
+            WindowsPerformanceLiason underTest = new WindowsPerformanceLiason();
+            underTest.GetRawValue(CounterTestUtilities.TestCategoryName, string.Empty);
         }
     }
 }

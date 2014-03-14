@@ -29,6 +29,8 @@ There are two different API classes that provide the exact same level of functio
 *	MultiThreadedLiason: String based API where the category/(instance)/counter strings are passed in on every call.
 *	MultiThreadedFacade: Completely static interface. This provides 7X thre throughput of MultiThreadedLiason.  Numeric key based API where the caller registers a category/(instance)/counter string combo to get a key that is used in subsequent calls.
 
+Performance Counters use the high resolution system timer.  You must use the StopwachTimestamp() method when doing timer spans.
+
 # Using the Provided Binaries
 The github repository holds the latest binaries in the packages directory. You can use them without having to compile C# code or build any proxies.
 Steps to use binaries

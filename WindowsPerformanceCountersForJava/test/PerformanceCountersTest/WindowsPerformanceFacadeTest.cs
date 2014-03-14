@@ -166,7 +166,7 @@ namespace FreemanSoft.PerformanceCounters.Test
         {
             int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestCounterNumberOfItems64Name);
             float initialValue = WindowsPerformanceFacade.NextValue(counterId);
-           WindowsPerformanceFacade.Increment(counterId);
+            WindowsPerformanceFacade.Increment(counterId);
             float finalValue = WindowsPerformanceFacade.NextValue(counterId);
             Assert.AreEqual(initialValue + 1, finalValue);
         }
@@ -180,8 +180,8 @@ namespace FreemanSoft.PerformanceCounters.Test
         public void WindowsPerformanceFacadeTest_VerifyIncrementAverageTimer32()
         {
             int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestAverageTimer32Name);
-           WindowsPerformanceFacade.Increment(counterId);
-           WindowsPerformanceFacade.Increment(counterId);
+            WindowsPerformanceFacade.Increment(counterId);
+            WindowsPerformanceFacade.Increment(counterId);
             float finalValue = WindowsPerformanceFacade.NextValue(counterId);
             //// ((N1 - N0) / F) / (B1 - B0)
             //// how fast is our clock
@@ -200,7 +200,7 @@ namespace FreemanSoft.PerformanceCounters.Test
         {
             int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestCounterNumberOfItems64Name);
             float initialValue = WindowsPerformanceFacade.NextValue(counterId);
-           WindowsPerformanceFacade.IncrementBy(counterId, 3);
+            WindowsPerformanceFacade.IncrementBy(counterId, 3);
             float finalValue = WindowsPerformanceFacade.NextValue(counterId);
             Assert.AreEqual(initialValue + 3, finalValue);
         }
@@ -218,8 +218,8 @@ namespace FreemanSoft.PerformanceCounters.Test
 
             int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestAverageTimer32Name);
             //// average (time) of all measurements performed.  lets assume it was clear before we ran the test
-           WindowsPerformanceFacade.IncrementBy(counterId, span1);
-           WindowsPerformanceFacade.IncrementBy(counterId, span2);
+            WindowsPerformanceFacade.IncrementBy(counterId, span1);
+            WindowsPerformanceFacade.IncrementBy(counterId, span2);
             //// average (time) of all measurements performed. 
             float finalValue = WindowsPerformanceFacade.NextValue(counterId);
             //// ((N1 - N0) / F) / (B1 - B0)
@@ -244,8 +244,8 @@ namespace FreemanSoft.PerformanceCounters.Test
             int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestAverageTimer32Name);
             //// average (time) of all measurements performed.  lets assume it was clear before we ran the test
             //// increment the base counters by something other than the default
-           WindowsPerformanceFacade.IncrementBy(counterId, span1, 4);
-           WindowsPerformanceFacade.IncrementBy(counterId, span2, 4);
+            WindowsPerformanceFacade.IncrementBy(counterId, span1, 4);
+            WindowsPerformanceFacade.IncrementBy(counterId, span2, 4);
             //// average (time) of all measurements performed. 
             float finalValue = WindowsPerformanceFacade.NextValue(counterId);
             //// ((N1 - N0) / F) / (B1 - B0)
@@ -265,8 +265,8 @@ namespace FreemanSoft.PerformanceCounters.Test
         {
             int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestCounterNumberOfItems64Name);
             float initalValue = WindowsPerformanceFacade.NextValue(counterId);
-           WindowsPerformanceFacade.IncrementBy(counterId, 7);
-           WindowsPerformanceFacade.Decrement(counterId);
+            WindowsPerformanceFacade.IncrementBy(counterId, 7);
+            WindowsPerformanceFacade.Decrement(counterId);
             float finalValue = WindowsPerformanceFacade.NextValue(counterId);
             Assert.AreEqual(initalValue + 6, finalValue);
         }
@@ -280,9 +280,9 @@ namespace FreemanSoft.PerformanceCounters.Test
         public void WindowsPerformanceFacadeTest_VerifyDecrementAverageTimer32()
         {
             int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestAverageTimer32Name);
-           WindowsPerformanceFacade.Increment(counterId);
-           WindowsPerformanceFacade.Increment(counterId);
-           WindowsPerformanceFacade.Decrement(counterId);
+            WindowsPerformanceFacade.Increment(counterId);
+            WindowsPerformanceFacade.Increment(counterId);
+            WindowsPerformanceFacade.Decrement(counterId);
             float finalValue = WindowsPerformanceFacade.NextValue(counterId);
             //// ((N1 - N0) / F) / (B1 - B0)
             //// how fast is our clock
@@ -292,6 +292,43 @@ namespace FreemanSoft.PerformanceCounters.Test
             float denominator = 3 - 2;
             Assert.AreEqual(numerator / denominator, finalValue, .002, "Freq: " + freq);
             //// the final value is actually 0 here and our calculatd value is very small, almost -0
+        }
+
+        /// <summary>
+        /// Verify we can write to all known test counters
+        /// Test with basic counters because then we don't have rate window problems.
+        /// </summary>
+        [TestMethod]
+        public void WindowsPerformanceFacadeTest_VerifySetGetNextValue()
+        {
+            int counterId = WindowsPerformanceFacade.GetPerformanceCounterId(CounterTestUtilities.TestCategoryName, null, CounterTestUtilities.TestCounterNumberOfItems64Name);
+            WindowsPerformanceFacade.SetRawValue(counterId, 0);
+            float initialValue =
+            WindowsPerformanceFacade.GetRawValue(counterId);
+            Assert.AreEqual(0.0, initialValue, 0.001); // shouldn't need delta...
+            WindowsPerformanceFacade.SetRawValue(counterId, 10);
+            float finalValue =
+            WindowsPerformanceFacade.GetRawValue(counterId);
+            Assert.AreEqual(10.0, finalValue, 0.001);  // shouldn't need delta
+        }
+
+        ////////////////////////////////////////////////////////////////////////
+        ////
+        ////////////////////////////////////////////////////////////////////////
+
+        /// <summary>
+        /// Test our stopwatch method.  Not much happening here
+        /// </summary>
+        [TestMethod]
+        public void WindowsPerformanceFacadeTest_GetTicks()
+        {
+            long firstTick = WindowsPerformanceFacade.StopwatchTimestamp();
+            Thread.Sleep(100);
+            long secondTick = WindowsPerformanceFacade.StopwatchTimestamp();
+            long elapsedTicks = secondTick - firstTick;
+            //// Dividing by Frequency gives you seconds but we want milliseconds 
+            //// Assume we're not off by more than 10 msec on a 100msec wait
+            Assert.AreEqual(100, (1000 * elapsedTicks) / Stopwatch.Frequency, 10);
         }
     }
 }

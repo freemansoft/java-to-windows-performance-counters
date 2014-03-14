@@ -112,7 +112,7 @@ namespace FreemanSoft.PerformanceCounters.Test
         #endregion
 
         /// <summary>
-        /// basic test
+        /// Still struggling with maing this test reliable
         /// </summary>
         [TestMethod]
         public void WindowsPerformanceLiasonThreadTest_VerifyThreadSafe()

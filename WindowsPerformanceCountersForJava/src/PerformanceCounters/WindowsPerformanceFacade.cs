@@ -55,9 +55,27 @@ namespace FreemanSoft.PerformanceCounters
         }
 
         /// <summary>
+        /// Returns the current high resolution tick counter. 
+        /// Performance counters use this rather than system time because it is more accurate.
+        /// Often used to get the start or end ticks for specific counter.
+        /// Call this at the start of an operation and at the end and pass the difference to your
+        /// counters that need spans. 
+        /// <para></para>
+        /// Can be used to initialize counter via RawValue method.
+        /// Can really only be used with IncrementBy() methods.
+        /// </summary>
+        /// <returns>current system Stopwatch ticks</returns>
+        public static long StopwatchTimestamp()
+        {
+            long ticks;
+            ticks = liason.StopwatchTimestamp();
+            return ticks;
+        }
+
+        /// <summary>
         /// Counter manipulation method that takes pre-cached numeric key.
         /// This is many times faster than incrementBy(1)
-        /// <exception cref="ArgumentException">if previously cached can't be found </exception>
+        /// <exception cref="ArgumentException">if previously cached key can't be found </exception>
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
         public static void Increment(int counterKey)
@@ -68,7 +86,7 @@ namespace FreemanSoft.PerformanceCounters
 
         /// <summary>
         /// Counter manipulation method that takes pre-cached numeric key.
-        /// <exception cref="ArgumentException">if previously cached can't be found </exception>
+        /// <exception cref="ArgumentException">if previously cached key can't be found </exception>
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
         /// <param name="incrementAmount">the amount we wish to increment</param>
@@ -96,7 +114,7 @@ namespace FreemanSoft.PerformanceCounters
 
         /// <summary>
         /// Counter manipulation method that takes pre-cached numeric key.
-        /// <exception cref="ArgumentException">if previously cached can't be found </exception>
+        /// <exception cref="ArgumentException">if previously cached key can't be found </exception>
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
         public static void Decrement(int counterKey)
@@ -107,7 +125,7 @@ namespace FreemanSoft.PerformanceCounters
 
         /// <summary>
         /// Counter manipulation method that takes pre-cached numeric key.
-        /// <exception cref="ArgumentException">if previously cached can't be found </exception>
+        /// <exception cref="ArgumentException">if previously cached key can't be found </exception>
         /// </summary>
         /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
         /// <returns>The current value from the NextValue method on the counter.</returns>
@@ -115,6 +133,32 @@ namespace FreemanSoft.PerformanceCounters
         {
             PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
             return liason.NextValue(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
+        }
+
+        /// <summary>
+        /// Sets the raw value of this counter
+        /// </summary>
+        /// <exception cref="System.InvalidOperationException">if this counter is ReadOnly</exception>
+        /// <exception cref="ArgumentException">if previously cached key can't be found </exception>
+        /// </summary>
+        /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
+        /// <param name="value">the new raw value for this counter</param>
+        public static void SetRawValue(int counterKey, long value)
+        {
+            PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
+            liason.SetRawValue(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName, value);
+        }
+
+        /// <summary>
+        /// Gets the raw value of this counter
+        /// </summary>
+        /// <exception cref="ArgumentException">if a category counter or name is not provided</exception>
+        /// </summary>
+        /// <param name="counterKey">numeric key that we map to category/instance/counter names </param>
+        public static long GetRawValue(int counterKey)
+        {
+            PerformanceCounterKey complexKey = GetPerformanceCounterKey(counterKey);
+            return liason.GetRawValue(complexKey.CategoryName, complexKey.InstanceName, complexKey.CounterName);
         }
 
         /// <summary>
@@ -153,7 +197,7 @@ namespace FreemanSoft.PerformanceCounters
 
         /// <summary>
         /// revers lookup that finds previously cached complex key object associated with this numeric
-        /// <exception cref="ArgumentException">if previously cached can't be found </exception>
+        /// <exception cref="ArgumentException">if previously cached key can't be found </exception>
         /// </summary>
         /// <param name="counterKey">a previously retrieved performance counter id</param>
         /// <returns>The compound PerformanceCounterKey object that contains the category, instance and counter names</returns>

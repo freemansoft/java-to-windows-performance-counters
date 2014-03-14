@@ -71,11 +71,18 @@ namespace FreemanSoft.PerformanceCounters
         }
 
         /// <summary>
-        /// Returns the current tick counter. Often used to get the start or end ticks for specific counter.
-        /// Can really only be used with IncrementBy() methods
+        /// Returns the current high resolution tick counter. 
+        /// Performance counters use this rather than system time because it is more accurate.
+        /// <para></para>
+        /// Often used to get the start or end ticks for specific counter.
+        /// Call this at the start of an operation and at the end and pass the difference to your
+        /// counters that need spans. 
+        /// <para></para>
+        /// Can be used to initialize counter via RawValue method.
+        /// Can really only be used with IncrementBy() methods.
         /// </summary>
-        /// <returns>current ticks</returns>
-        public long GetTicks()
+        /// <returns>current system Stopwatch ticks</returns>
+        public long StopwatchTimestamp()
         {
             long ticks;
             ticks = Stopwatch.GetTimestamp();
@@ -231,6 +238,62 @@ namespace FreemanSoft.PerformanceCounters
             ValidateCategoryAndCounterNameExists(categoryName, counterName);
             WrappedPerformanceCategory ourCategory = this.CacheCountersForCategory(categoryName, instanceName);
             return ourCategory.NextValue(counterName);
+        }
+
+        /// <summary>
+        /// Sets the raw value of this counter
+        /// </summary>
+        /// <exception cref="System.InvalidOperationException">if this counter is ReadOnly</exception>
+        /// <exception cref="ArgumentException">if a category counter or name is not provided</exception>
+        /// </summary>
+        /// <param name="categoryName">name of the category</param>
+        /// <param name="counterName">name of the counter in the category</param>
+        public void SetRawValue(string categoryName, string counterName, long value)
+        {
+            this.SetRawValue(categoryName, null, counterName, value);
+        }
+
+        /// <summary>
+        /// Sets the raw value of this counter
+        /// </summary>
+        /// <exception cref="System.InvalidOperationException">if this counter is ReadOnly</exception>
+        /// <exception cref="ArgumentException">if a category counter or name is not provided</exception>
+        /// </summary>
+        /// <param name="categoryName">name of the category</param>
+        /// <param name="instanceName">name of the instance of this category, optional can be null</param>
+        /// <param name="counterName">name of the counter in the category</param>
+        public void SetRawValue(string categoryName, string instanceName, string counterName, long value)
+        {
+            ValidateCategoryAndCounterNameExists(categoryName, counterName);
+            WrappedPerformanceCategory ourCategory = this.CacheCountersForCategory(categoryName, instanceName);
+            ourCategory.SetRawValue(counterName, value);
+        }
+
+        /// <summary>
+        /// Gets the raw value of this counter
+        /// </summary>
+        /// <exception cref="ArgumentException">if a category counter or name is not provided</exception>
+        /// </summary>
+        /// <param name="categoryName">name of the category</param>
+        /// <param name="counterName">name of the counter in the category</param>
+        public long GetRawValue(string categoryName, string counterName)
+        {
+            return this.GetRawValue(categoryName, null, counterName);
+        }
+
+        /// <summary>
+        /// Gets the raw value of this counter
+        /// </summary>
+        /// <exception cref="ArgumentException">if a category counter or name is not provided</exception>
+        /// </summary>
+        /// <param name="categoryName">name of the category</param>
+        /// <param name="instanceName">name of the instance of this category, optional can be null</param>
+        /// <param name="counterName">name of the counter in the category</param>
+        public long GetRawValue(string categoryName, string instanceName, string counterName)
+        {
+            ValidateCategoryAndCounterNameExists(categoryName, counterName);
+            WrappedPerformanceCategory ourCategory = this.CacheCountersForCategory(categoryName, instanceName);
+            return ourCategory.GetRawValue(counterName);
         }
 
         /// <summary>
