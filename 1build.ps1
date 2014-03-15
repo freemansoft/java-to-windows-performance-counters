@@ -115,6 +115,7 @@ Copy-Item $perfdllpath $packagingdir
 # powershell fu to avoid copy/past of properties so I'm leaving it here
 #
 ######################################## begin sample ######################################
+echo "========================== Starting Samples ==================================="
 # compiling sample
 echo "Compiling Java CacheTest sample"
 New-item -ItemType Directory -Force -Path $targetdir/classes | Out-Null
