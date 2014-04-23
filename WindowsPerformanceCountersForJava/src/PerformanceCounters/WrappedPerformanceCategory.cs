@@ -60,6 +60,7 @@ namespace FreemanSoft.PerformanceCounters
                 throw new ArgumentException("no category name specified");
             }
             this.wrappedCategory = new PerformanceCounterCategory(categoryName);
+            //// the raw windows performance counters
             PerformanceCounter[] myCategoryCounters;
             if (string.IsNullOrEmpty(instanceName))
             {
@@ -71,49 +72,54 @@ namespace FreemanSoft.PerformanceCounters
             }
             System.Diagnostics.Debug.WriteLine("WrappedPerformanceCategory: " + categoryName + " => " + myCategoryCounters.Length + " counters");
             PerformanceCounter previousCounter = null;
+            //// work from back to front so we pick up base counters first since they come write after primary counter
             for (int i = myCategoryCounters.Length - 1; i >= 0; i--)
             {
-                PerformanceCounter readOnlyCounter = myCategoryCounters[i];
-                PerformanceCounter counterInCategory;
+                PerformanceCounter retrievedReadOnlyCounter = myCategoryCounters[i];
+                PerformanceCounter counterWeWillWrap;
+                PerformanceCounterType? matchingBaseType = null;
                 bool counterIsReadOnly = true;
+                //// try and create read/write if we can
                 try
                 {
-                    //// this will fail for system counters
-                    counterInCategory = new PerformanceCounter(
-                        readOnlyCounter.CategoryName,
-                        readOnlyCounter.CounterName,
-                        readOnlyCounter.InstanceName,
+                    //// this will fail for system counters which are read only
+                    counterWeWillWrap = new PerformanceCounter(
+                        retrievedReadOnlyCounter.CategoryName,
+                        retrievedReadOnlyCounter.CounterName,
+                        retrievedReadOnlyCounter.InstanceName,
                         false);
                     counterIsReadOnly = false;
                 }
                 catch (System.InvalidOperationException)
                 {
-                    counterInCategory = readOnlyCounter;
+                    //// dang.  that was a read/only counter so just put the read only counter in the retained collection
+                    counterWeWillWrap = retrievedReadOnlyCounter;
                     counterIsReadOnly = true;
                 }
                 //// turn on Debug-->Windows-->Output (debug output) to see this string
-                System.Diagnostics.Debug.WriteLine("WrappedPerformanceCategory: " + categoryName + ": " + counterInCategory.CounterName + " -> " + counterInCategory.CounterType);
-                PerformanceCounterType? matchingBase =
-                    WrappedPerformanceCounter.GetBaseTypeForCounter(counterInCategory);
-                //// bind together a counter and its base if the counter time requires a base counter type
-                if (matchingBase == null)
+                System.Diagnostics.Debug.WriteLine("WrappedPerformanceCategory: " + categoryName + ": " + counterWeWillWrap.CounterName + " -> " + counterWeWillWrap.CounterType);
+                matchingBaseType = WrappedPerformanceCounter.GetBaseTypeForCounter(counterWeWillWrap);
+                //// Bind together a counter and its base if the counter time requires a base counter type
+                //// Some read only system counters don't come back with their base counter types
+                //// We found this with "Paging File(_Total)\% Usage"
+                if (previousCounter == null || matchingBaseType == null || !matchingBaseType.Equals(previousCounter.CounterType))
                 {
                     this.counters.TryAdd(
-                        counterInCategory.CounterName,
-                        new WrappedPerformanceCounter(counterInCategory, counterIsReadOnly));
+                        counterWeWillWrap.CounterName,
+                        new WrappedPerformanceCounter(counterWeWillWrap, counterIsReadOnly));
                 }
                 else
                 {
                     System.Diagnostics.Debug.WriteLine(
                         "WrappedPerformanceCategory: " +
-                          "Table says " + counterInCategory.CounterType
-                        + " is supported by " + matchingBase
+                          "Table says " + counterWeWillWrap.CounterType
+                        + " is supported by " + matchingBaseType
                         + " and we're using type " + previousCounter.CounterType);
                     this.counters.TryAdd(
-                        counterInCategory.CounterName,
-                        new WrappedPerformanceCounter(counterInCategory, previousCounter, counterIsReadOnly));
+                        counterWeWillWrap.CounterName,
+                        new WrappedPerformanceCounter(counterWeWillWrap, previousCounter, counterIsReadOnly));
                 }
-                previousCounter = counterInCategory;
+                previousCounter = counterWeWillWrap;
             }
         }
 

@@ -83,7 +83,7 @@ namespace FreemanSoft.PerformanceCounters.Test
             counterDescriptions.Add(CreateCounterForTest(TestAverageTimerBaseName, PerformanceCounterType.AverageBase));
             counterDescriptions.Add(CreateCounterForTest(TestAverageCount64Name, PerformanceCounterType.AverageCount64));
             counterDescriptions.Add(CreateCounterForTest(TestAverageCountBaseName, PerformanceCounterType.AverageBase));
-
+            //// notice we don't use/touch any wrapped classes so that we can make sure retrieval is first time they are wrapped
             System.Diagnostics.PerformanceCounterCategory.Create(TestCategoryName, "Category help " + TestCategoryName, PerformanceCounterCategoryType.SingleInstance, counterDescriptions);
         }
 

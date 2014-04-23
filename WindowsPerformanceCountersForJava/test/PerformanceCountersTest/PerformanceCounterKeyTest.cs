@@ -99,5 +99,15 @@ namespace FreemanSoft.PerformanceCounters.Test
             Assert.AreNotEqual(c3.KeyCode, c4.KeyCode);
             Assert.AreNotEqual(c2.KeyCode, c4.KeyCode);
         }
+
+        /// <summary>
+        /// starting from the bottom working on a problem found with "Paging File(_Total)\% Usage"
+        /// </summary>
+        [TestMethod]
+        public void PerformanceCounterKeyTest_PagingFileCounters()
+        {
+            PerformanceCounterKey k = new PerformanceCounterKey("Paging File", "_Total", "% Usage");
+            Assert.IsNotNull(k);
+        }
     }
 }

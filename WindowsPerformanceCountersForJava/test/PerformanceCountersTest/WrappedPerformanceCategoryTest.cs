@@ -99,12 +99,32 @@ namespace FreemanSoft.PerformanceCounters.Test
         /// This test takes 500ms because that is how long it takes to pull a category from the hive
         /// </summary>
         [TestMethod]
-        public void WrappedPerformanceCategoryTest_VerifyCanWrapInstances()
+        public void WrappedPerformanceCategoryTest_VerifyCanWrapSystemInstances()
         {
             WrappedPerformanceCategory procInfo = new WrappedPerformanceCategory("Processor", "0");
             Assert.IsNotNull(procInfo);
             //// there are a bunch of proc 0 counters. We just want to make sure we got some
-            Assert.IsTrue(procInfo.GetCounters().Count > 2);
+            IDictionary<string, WrappedPerformanceCounter> allCounters = procInfo.GetCounters();
+            Assert.IsTrue(allCounters.Count > 2);
+            Assert.IsTrue(allCounters["% User Time"].CounterIsReadOnly());
+            //// this counter has a base but we don't see it since it is a system counter
+            Assert.IsFalse(allCounters["% User Time"].CounterHasAssociatedBase());
+        }
+
+        /// <summary>
+        /// Verify we can get a well know category with a well known instance name.
+        /// This test takes 500ms because that is how long it takes to pull a category from the hive
+        /// </summary>
+        [TestMethod]
+        public void WrappedPerformanceCategoryTest_VerifyCanWrapOurInstances()
+        {
+            WrappedPerformanceCategory testCategory = new WrappedPerformanceCategory(CounterTestUtilities.TestCategoryName, null);
+            Assert.IsNotNull(testCategory);
+            //// there are a bunch of proc 0 counters. We just want to make sure we got some
+            IDictionary<string, WrappedPerformanceCounter> allCounters = testCategory.GetCounters();
+            Assert.IsFalse(allCounters[CounterTestUtilities.TestCounterNumberOfItems64Name].CounterIsReadOnly());
+            Assert.IsFalse(allCounters[CounterTestUtilities.TestCounterNumberOfItems64Name].CounterHasAssociatedBase());
+            Assert.IsTrue(allCounters[CounterTestUtilities.TestAverageTimer32Name].CounterHasAssociatedBase());
         }
 
         /// <summary>

@@ -48,7 +48,7 @@ namespace FreemanSoft.PerformanceCounters
         private PerformanceCounter associatedBase;
 
         /// <summary>
-        /// whether or not we can modify this counter
+        /// Whether or not we can modify this counter
         /// </summary>
         private bool isReadOnly = false;
 
@@ -113,7 +113,7 @@ namespace FreemanSoft.PerformanceCounters
 
         /// <summary>
         /// constructor for this class
-        /// <exception cref="ArgumentNullException">if no counter provided to be wrapped</exception>
+        /// <exception cref="ArgumentNullException">Throws ArgumentNullException if no counter provided to be wrapped</exception>
         /// </summary>
         /// <param name="counterToBeWrapped">the contained counter</param>
         /// <param name="associatedBaseToBeWrapped">optional associated base counter</param>
@@ -253,6 +253,25 @@ namespace FreemanSoft.PerformanceCounters
         internal void SetRawValue(long value)
         {
             this.wrappedCounter.RawValue = value;
+        }
+
+        /// <summary>
+        /// used mostly for testing
+        /// </summary>
+        /// <returns>true if this counter is read only</returns>
+        internal bool CounterIsReadOnly()
+        {
+            //// Made internal so unit tests can see it. Shiv will shiv me when he sees this.
+            return this.isReadOnly;
+        }
+
+        /// <summary>
+        /// used for testing
+        /// </summary>
+        /// <returns>true if this counter has an real base counter associated with it</returns>
+        internal bool CounterHasAssociatedBase()
+        {
+            return this.associatedBase != null;
         }
     }
 }

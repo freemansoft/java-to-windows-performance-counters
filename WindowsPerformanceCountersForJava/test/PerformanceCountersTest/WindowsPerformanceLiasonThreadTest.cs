@@ -112,7 +112,7 @@ namespace FreemanSoft.PerformanceCounters.Test
         #endregion
 
         /// <summary>
-        /// Still struggling with maing this test reliable
+        /// Still struggling with making this test reliable
         /// </summary>
         [TestMethod]
         public void WindowsPerformanceLiasonThreadTest_VerifyThreadSafe()
@@ -127,6 +127,7 @@ namespace FreemanSoft.PerformanceCounters.Test
             WindowsPerformanceLiason liason = new WindowsPerformanceLiason();
             //// this warms up the counter table. otherwise every thread pays the price
             liason.CacheCounters(categoryname);
+            liason.SetRawValue(categoryname, countername, 0);
 
             bool[] stopflag = { false };
             Thread[] threads = new Thread[numthreads];
@@ -147,19 +148,23 @@ namespace FreemanSoft.PerformanceCounters.Test
             {
                 thread.Join();
             }
-            WrappedPerformanceCategory ourCat = liason.CacheCountersForCategory(categoryname);
-            //// Sometimes we are off by 1 or two if we run 10 seconds. how can this be?
-            Thread.Sleep(2); //// try waiting for everything to flow through
-            int result = (int)ourCat.NextValue(countername);
             int expected = 0;
             foreach (ThreadExecutor oneExec in allexecutorsForValidation)
             {
                 expected += oneExec.ExecutionCount;
             }
-            Debug.WriteLine("Threads reported {0}, Counter reported {1} updates with {2} threads in {3} seconds.", expected, result, numthreads, sleeptime);
+            WrappedPerformanceCategory ourCat = liason.CacheCountersForCategory(categoryname);
+            //// Sometimes we are off by 1 or two if we run 10 seconds. how can this be?
+            Thread.Sleep(2); //// try waiting for everything to flow through
+            float realNextValue = ourCat.NextValue(countername);
+            int result = (int)ourCat.NextValue(countername);
+            long rawResult = ourCat.GetRawValue(countername);
+            //// sometimes you don't a cooked value of 0 , some glitch in reporting
+            Debug.WriteLine("Threads reported {0}, Counter reported {1} updates ({2} raw) with {3} threads in {4} seconds.", expected, result, rawResult, numthreads, sleeptime);
+            Assert.AreEqual(expected, (int)rawResult, "raw result didn't match");
             //// these should be exact but I've had a couple failures, not sure how that can be
             //// Assert.AreEqual(expected, result);
-            Assert.AreEqual(expected, result, 2);
+            Assert.AreEqual(expected, result, 2, "cooked result didn't match but raw did");
             //// this should be about 2million per thread per second on quad core macbook pro
             Assert.IsTrue(result > 20000, "expected > 20,000 but got " + result);
         }
