@@ -17,10 +17,11 @@ The GitHub repository contains the following pieces
 2. jni4net JNI generation library available on sourceforge used to create java proxies
 3. The pre-built binaries in the packages directory that let you run use this library without having to build the originating dll or the JNI components.  This includes a javadoc jar for the proxies
 4. The source for sample java project that shows how to use the library and allows you to run performance tests.  There is a powershell script in this directory that must be run as administrator to create the Test/Demo performance counters.
-5. A powershell script that builds the JNI components and runs the demos.  This assumes that you have already built the base C# library with visual studio.
-	1. A powershell script that patches generated C# fils
-	2. A powershell script that adds javadoc to the generated Java files
-6. A powershell script that creates the performance counters used by the java test program
+5. 1build.ps1: A powershell script that builds the C# library, JNI components and runs the demos.  This assumes that you have .net 4.0 installed with its csc and msbuild executables.
+	1. 3hacgeneratedcs.ps1: A powershell script that patches generated C# fils
+	2. 4hackgeneratedjava.ps1: A powershell script that adds javadoc to the generated Java files
+6. A powershell script that creates the performance counters used by the java test program.  Windows requires 
+that performance counters be created by an administrator before they can be used.
 
 # API
 
@@ -48,18 +49,16 @@ Steps to use binaries
 # Building from sources
 Steps to build the binaries from scratch
 
-	* Build the C code
-		*Open the visual studio *as administrator* to be able to create and teardown performance counters in unit tests.
-			* Open the solution and build. It should run all the unit/integration tests.
-	* Create the performance counters for the Java code
+	* Create Windows performance counters that the Java code will update.
 		*Open an Administrator powershell
 			* CD to the java-sample directory
 			* Run 1CreateTestPerformanceCounters.ps1 to create the performance counters. The java code doesn't have permission to create performance counters.
-	* Generate the JNI code, build java and run the samples.
-		*Open a new powershell to generate the JNI code, build the java sample code code and run the tests. You may be able to re-use the admin powershell. I've never done that.
-			* Verify the 1build.ps1 paths work for you. They WILL NOT be right.  The script assumes you are sitting in the root of this repository.  It does have hard coded paths to csc.exe
-			* cd into the top level directory
-			* Run the 1build.ps1 powershell script to build and run java code
+	* Build the C# code, generate the JNI wrapper code, build java and run the samples.
+		*Open a new powershell command window.
+			* Verify the 1build.ps1 paths work for you. They include the paths to Java and to your version of .Net. You should assume they WILL NOT be right.  
+				The script assumes you are sitting in the root of this repository.  It does have hard coded paths to csc.exe and msbuild
+			* Cd to the root of this project
+			* Run the 1build.ps1 powershell script to build the C# library, build the java code and run java tests/samples that generate metrics
 	* Watch everything fly by.
 	
 

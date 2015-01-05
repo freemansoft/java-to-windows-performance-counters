@@ -37,8 +37,10 @@ if ( Test-Path Env:\java_home )
 
 # this should be the current working directory
 $projectroot = "$PSScriptRoot\"
-$perfdllpath = "WindowsPerformanceCountersForJava\src\PerformanceCounters\bin\Debug\FreemanSoft.PerformanceCounters.dll"
-$jni4netroot= "jni4net-0.8.6.0-bin\"
+$perfslnpath = "WindowsPerformanceCountersForJava"
+$perfsln = $perfslnpath + "\WindowsPerformanceCountersForJava.sln"
+$perfdllpath = $perfslnpath +"\src\PerformanceCounters\bin\Debug\FreemanSoft.PerformanceCounters.dll"
+$jni4netroot = "jni4net-0.8.6.0-bin\"
 $jni4netbinpath = $projectroot+$jni4netroot+"bin\"
 $jni4netlibpath = $projectroot+$jni4netroot+"lib\"
 $targetdir = "generated\target"
@@ -47,14 +49,30 @@ $javadoctargerdir = "generated\docs"
 $javagensourcedir = "generated\jvm"
 $packagingdir = "packages"
 # use .Net 3.5 or later
-$cscpath="C:\Windows\Microsoft.NET\Framework64\v4.0.30319"
+$dotnetpath = "C:\Windows\Microsoft.NET\Framework64\v4.0.30319"
+$csc = $dotnetpath+"\csc.exe"
+$msbuild = $dotnetpath+"\msbuild.exe"
 # JDK 1.5 or later -- should use JAVA_HOME\bin if it exists or verify if already on path
 $javacpath="$env:java_home\bin"
-if ( Test-Path $cscpath\csc.exe)
+if ( Test-Path $csc)
 {
 	# echo "found csc.exe"
 } else {
-	echo "Can't find csc.exe in $cscpath.  Verify that is the right path for you"
+	echo "Can't find csc.exe in $csc.  Verify that is the right path for you"
+	exit 1
+}
+if ( Test-Path $msbuild)
+{
+	# echo "found msbuild.exe"
+} else {
+	echo "Can't find msbuild.exe in $msbuild.  Verify that is the right path for you"
+	exit 1
+}
+if ( Test-Path $perfsln)
+{
+	# echo "found solution file"
+} else {
+	echo "Can't find solution $perfsln.  Verify that is the right path for you"
 	exit 1
 }
 if ( Test-Path $javacpath\javac.exe)
@@ -64,9 +82,13 @@ if ( Test-Path $javacpath\javac.exe)
 	echo "Can't find javac.exe in $javacpath.  Verify that is the right path for you"
 	exit 1
 }
-$env:path=$jni4netbinpath+";"+$cscpath+";"+$javacpath+";"+$env:path
+$env:path=$jni4netbinpath+";"+$dotnetpath+";"+$javacpath+";"+$env:path
 echo "Temporarily modified path"
 #echo $env:path
+
+# building the debug version
+echo "Generating C# performance library that we will wrap"
+& $msbuild $perfsln /target:Clean /target:Build
 
 echo "Generating JNI code using proxygen"
 # its on the path now.
